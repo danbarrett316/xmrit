@@ -51,93 +51,25 @@
 </head>
 
 <body class='max-w-screen-2xl mx-auto'>
-  <header class="col-span-12 pt-3 px-4 border-b pb-5 mb-5 border-slate-400" x-data="{ isOpen: false }">
-    <div class="flex items-stretch md:items-center justify-between">
-      <a class='flex items-center' href="/"><img class="w-16 h-16 mr-1" src="https://xmrit.com/xmrit-logo.png" />
-        <div class="flex flex-col justify-start">
-          <h1 class="text-2xl md:text-4xl font-sans font-bold tracking-tight text-gray-700">Xmrit</h1>
-          <h3 class="text-xs md:text-sm font-sans -mt-1 italic">by Commoncog</h3>
+  <header class="col-span-12 pt-3 px-4 border-b pb-5 mb-5 border-slate-400">
+    <div class="flex items-center justify-between">
+      <a class='flex items-center' href="https://docs.google.com/spreadsheets/d/1yEQL_N-jLvMpFimG7Q54S_cupqwdFDicARpBWeYIqO8">
+        <div class="flex flex-col justify-center">
+          <h1 class="text-3xl font-sans font-bold tracking-tight text-gray-700">Personal Dashboard</h1>
+          <p class="text-sm text-gray-500">Quick link to the spreadsheet</p>
         </div>
       </a>
-      <button type="button"
-        class="lg:hidden bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-blue-800 focus:outline-none focus:ring-2 focus-ring-inset focus:ring-white"
-        aria-expanded="false" @click="isOpen = !isOpen">
-        <span class="sr-only">Open main menu</span>
-
-        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-          stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-      <nav class="mt-5 md:mt-0 hidden lg:block text-sm md:text-base">
-
-
-        <a class="hidden lg:inline px-2 md:px-4 py-3 hover:text-blue-700" href="https://xmrit.com/opensource/">Open
-          Source</a>
-        <a class="px-2 md:px-4 py-3 hover:text-blue-700" href="https://xmrit.com/manual/">User Manual</a>
-        <a class="px-2 md:px-4 py-3 text-white bg-slate-800 hover:bg-blue-700 rounded-lg"
-          href="https://xmrit.com/about/">What is This?</a>
-
-      </nav>
-
-      <div x-cloak x-show="isOpen" x-transition:enter="duration-150 ease-out"
-        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="duration-100 ease-in" x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95"
-        class="absolute top-0 inset-x-0 p-2 transition transform origin-top lg:hidden z-50">
-        <div class="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5 overflow-hidden">
-          <div class="px-5 pt-4 flex items-center justify-between">
-            <div>
-              <a href="/"><img class="h-8 w-auto" src="https://xmrit.com/xmrit-logo.png" alt=""></a>
-            </div>
-            <div class="-mr-2">
-              <button type="button"
-                class="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-600"
-                @click="isOpen = !isOpen">
-                <span class="sr-only">Close menu</span>
-
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div class="pt-5 pb-6">
-            <div class="px-2 space-y-1">
-              <a class="block px-3 py-2 lg:px-2 lg:py-0 rounded-md text-base font-medium sm:font-normal text-gray-900 hover:bg-gray-50 lg:hover:text-purple-700 lg:hover:bg-white"
-                href="/articles/">Articles</a>
-              <a class="block px-3 py-2 lg:px-2 lg:py-0 rounded-md text-base font-medium sm:font-normal text-gray-900 hover:bg-gray-50 lg:hover:text-purple-700 lg:hover:bg-white"
-                href="/about/">What is This?</a>
-              <a class="block px-3 py-2 lg:px-2 lg:py-0 rounded-md text-base font-medium sm:font-normal text-gray-900 hover:bg-gray-50 lg:hover:text-purple-700 lg:hover:bg-white"
-                href="/manual/">User Manual</a>
-              <a class="block px-3 py-2 lg:px-2 lg:py-0 rounded-md text-base font-medium sm:font-normal text-gray-900 hover:bg-gray-50 lg:hover:text-purple-700 lg:hover:bg-white"
-                href="/opensource/">Open Source</a>
-              <a class="block px-3 py-2 lg:px-2 lg:py-0 rounded-md text-base font-medium sm:font-normal text-gray-900 hover:bg-gray-50 lg:hover:text-purple-700 lg:hover:bg-white underline decoration-indigo-500 underline-offset-4"
-                href="https://shop.xmrit.com/metrics-masterclass">Metrics Masterclass</a>
-            </div>
-            <div class="mt-6 px-5">
-              <a href="/t/"
-                class="block text-center w-full py-3 px-4 rounded-md text-slate-900 border border-slate-900 hover:bg-blue-900 hover:text-white">Go
-                To Tool</a>
-            </div>
-            <div class="mt-6 px-5">
-            </div>
-          </div>
-        </div>
+      <div class="flex gap-3">
+        <span class="text-sm text-gray-600">Updated: <strong id="last-update">Live</strong></span>
       </div>
-
     </div>
   </header>
   <main class='relative bg-white'>
     <section class='grid grid-cols-12 grid-flow-row gap-1 md:gap-2 px-2 sm:px-6 mx-auto'>
 
       <div
-        class="col-span-12 order-2 md:order-none flex flex-row items-end md:items-start md:col-span-4 lg:col-span-3 xl:col-span-2 px-2 md:mb-0">
-        <button class="px-4 py-2 text-white bg-blue-700 hover:bg-blue-600 rounded-lg font-normal" id="refresh-charts"
-          type="button">Refresh Charts</button>
-      </div>
-      <div class="col-span-12 order-3 md:order-none md:col-span-6 xl:col-span-7 px-2" id="charts-global-buttons">
+        class="col-span-12 order-3 md:order-none md:col-span-6 xl:col-span-7 px-2 flex flex-col gap-3"
+        id="charts-global-buttons">
         <div class="border border-gray-400 p-2 rounded-xl hidden">
           <label class="mb-2 text-sm font-medium text-gray-900 hover:cursor-pointer" for="csv-file">Upload CSV file:
           </label>
@@ -147,12 +79,38 @@
         </div>
 
 
-        <button class="px-4 py-2 text-white bg-slate-700 hover:bg-slate-600 rounded-lg font-normal disabled:opacity-75"
-          id="lock-limit-btn" type="button">Lock Limits</button>
-        <button class="px-4 py-2 text-white bg-slate-700 hover:bg-slate-600 rounded-lg font-normal disabled:opacity-75"
-          id="trend-open-btn" type="button">Trends</button>
-        <button class="px-4 py-2 text-white bg-slate-700 hover:bg-slate-600 rounded-lg font-normal disabled:opacity-75"
-          id="de-seasonalise-btn" type="button">Seasonality</button>
+        <div class="flex flex-wrap gap-2">
+          <div class="flex flex-col gap-2 w-full md:w-auto">
+            <label for="tab-selector" class="text-sm font-medium text-gray-700">Tab:</label>
+            <select id="tab-selector"
+              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-2 w-full md:w-auto">
+            <label for="metric-selector" class="text-sm font-medium text-gray-700">Metric:</label>
+            <select id="metric-selector"
+              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              disabled>
+              <option value="">Select a tab first</option>
+            </select>
+          </div>
+          <button
+            class="px-4 py-2 text-white bg-blue-700 hover:bg-blue-600 rounded-lg font-normal self-end md:self-start"
+            id="refresh-data" type="button">Refresh Data</button>
+          <button
+            class="px-4 py-2 text-white bg-blue-700 hover:bg-blue-600 rounded-lg font-normal self-end md:self-start"
+            id="refresh-charts" type="button">Refresh Charts</button>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button class="px-4 py-2 text-white bg-slate-700 hover:bg-slate-600 rounded-lg font-normal disabled:opacity-75"
+            id="lock-limit-btn" type="button">Lock Limits</button>
+          <button class="px-4 py-2 text-white bg-slate-700 hover:bg-slate-600 rounded-lg font-normal disabled:opacity-75"
+            id="trend-open-btn" type="button">Trends</button>
+          <button class="px-4 py-2 text-white bg-slate-700 hover:bg-slate-600 rounded-lg font-normal disabled:opacity-75"
+            id="de-seasonalise-btn" type="button">Seasonality</button>
+        </div>
 
         <button class="text-red-500 hover:bg-red-100
  px-2 py-1 rounded hidden trend-remove-btn">Remove trend lines</button>
@@ -205,6 +163,15 @@
                 <option id="period-option-quarter" value="quarter">Quarter</option>
                 <option id="period-option-month" value="month">Month</option>
                 <option id="period-option-week" value="week">Week</option>
+              </select>
+            </div>
+            <div class="flex flex-col">
+              <label for="grouping-select" class="block text-sm font-medium leading-6 text-gray-900">Grouping:</label>
+              <select name="grouping" id="grouping-select">
+                <option value="none">None</option>
+                <option value="quarter">Quarter</option>
+                <option value="month">Month</option>
+                <option value="week">Week</option>
               </select>
             </div>
 
@@ -381,24 +348,16 @@
           type="button">Download
           Data (.CSV)</button>
       </div>
-      <div class="col-span-12 order-1 md:order-none px-2">
+      <div class="col-span-12 order-1 md:order-none px-2 hidden">
         <div id="file-error" class="text-red-500 font-bold hidden"></div>
-        <div class="bg-red-50 border border-red-300 md:hidden rounded-lg p-3 mb-3">
-          <p>XmRit! isn’t built for mobile use. Some functionality is degraded. For the full experience, load this on a
-            tablet
-            or computer.</p>
-        </div>
       </div>
       <div class="col-span-12 order-5 md:order-none md:col-span-4 lg:col-span-3 xl:col-span-2 px-2">
         <p class="text-sm lg:text-xs">
           Edit your data below. Right click for more options.
           <span class="text-red-600 text-sm lg:text-xs hidden" id="data-table-error">Dates should be in YYYY-MM-DD
-            format (if
-            copying from Excel, change date format settings!). </span>
+            format (if copying from Excel, change date format settings!). </span>
           <span class="font-semibold text-sm lg:text-xs hidden" id="duplicate-data-warning">Duplicate data detected in
-            the
-            table, results might be inaccurate.
-        </p>
+            the table, results might be inaccurate.</span>
         </p>
         <div id="dataTable" class='lg:mt-2'></div>
       </div>
@@ -445,53 +404,23 @@
         </div>
       </div>
       <div class="col-span-12 order-last mt-16 px-2 pb-10">
-        <div class="border-blue-300 border bg-sky-50 rounded-lg px-2 py-4 grid grid-cols-4 grid-flow-row">
-          <div class="col-span-4 md:col-span-2 prose p-2">
-            <h2 class='text-lg font-semibold' id="instructions">Quick Instructions</h2>
-            <ol>
-              <li>Paste and/or edit some data into the table.</li>
-              <li>Create a link to share charts with others, or download the charts as images.</li>
-              <li><em>Optional:</em> Add and adjust <strong>dividers</strong>, or edit <strong>table headers</strong> to
-                update chart axis labels.</li>
-              <li>The full user manual is <a href="https://xmrit.com/manual/">available here</a>.</li>
-            </ol>
-          </div>
-          <div class="col-span-4 md:col-span-2 prose p-2">
-            <h2 class='text-lg font-semibold'>Privacy Notice</h2>
-            <p>XmRit is 100% browser based and obsessed about protecting your privacy. Your data is never sent to our
-              servers. <a href="https://xmrit.com/privacy/">Read the full privacy policy</a> for details on analytics
-              tracking.</p>
-            <h2 class='text-lg font-semibold'>Have feedback?</h2>
-            <p>Send us feedback <a href="https://forms.gle/93hdRwdjJYDxnvSx5" target="_blank">here</a>. We'd love to
-              hear from
-              you!</p>
-          </div>
+        <div class="border-blue-300 border bg-sky-50 rounded-lg px-2 py-4">
+          <p class="text-sm text-gray-600 mb-2">Need to jump back to the spreadsheet?</p>
+          <a class="inline-flex items-center gap-2 text-blue-700 font-semibold hover:underline"
+            href="https://docs.google.com/spreadsheets/d/1yEQL_N-jLvMpFimG7Q54S_cupqwdFDicARpBWeYIqO8/edit?usp=sharing" target="_blank"
+            rel="noreferrer">
+            Open Personal Dashboard Sheet
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          </a>
         </div>
       </div>
 
     </section>
   </main>
-  <footer class="col-span-12 pt-8 px-4 border-t pb-5 mb-5 border-slate-400">
-    <div class="flex flex-col md:flex-row items-start justify-between">
-      <p class="text-gray-500 order-last md:order-first"><a class="hover:text-gray-800"
-          href="https://xmrit.com/">Xmrit</a> by <a class="hover:text-purple-600"
-          href="https://commoncog.com">Commoncog</a> &copy; 2025 // <br /> <a class="hover:text-gray-800"
-          href="https://postcognito.com">Postcognito Pte Ltd</a></p>
-      <nav class="mb-5 md:mb-0 flex flex-col md:flex-row">
-        <a class="text-gray-500 hover:text-gray-800 mx-0 md:mx-3 my-1 md:my-0"
-          href="https://xmrit.com/articles/">Articles</a>
-        <a class="text-gray-500 hover:text-gray-800 mx-0 md:mx-3 my-1 md:my-0" href="https://xmrit.com/opensource/">Open
-          Source</a>
-        <a class="text-gray-500 hover:text-gray-800 mx-0 md:mx-3 my-1 md:my-0"
-          href="https://xmrit.com/integration/">Integration</a>
-        <a class="text-gray-500 hover:text-gray-800 mx-0 md:mx-3 my-1 md:my-0"
-          href="https://forms.gle/93hdRwdjJYDxnvSx5">Send Feedback</a>
-        <a class="text-gray-500 hover:text-gray-800 my-1 md:my-0" href="https://xmrit.com/privacy/">Privacy Policy</a>
-        <a class="text-gray-500 hover:text-gray-800 mx-0 md:mx-3 my-1 md:my-0 underline decoration-indigo-500 underline-offset-4"
-          href="https://shop.xmrit.com/metrics-masterclass">Metrics Masterclass</a>
-      </nav>
-    </div>
-  </footer>
 
 
 

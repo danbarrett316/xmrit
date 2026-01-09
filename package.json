@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "cp xmrit-bg.png dist/ && parcel index.html",
+    "start": "mkdir -p dist && cp xmrit-bg.png dist/ && parcel index.html",
     "build": "parcel build index.html && cp xmrit-bg.png dist/"
   },
   "devDependencies": {
@@ -12,6 +12,7 @@
     "tailwindcss": "^3.4.11"
   },
   "dependencies": {
+    "chroma-js": "^3.1.1",
     "dayjs": "^1.11.10",
     "echarts": "^5.5.1",
     "handsontable": "^14.3.0",

@@ -125,6 +125,38 @@ type SeasonalityPeriod = "year" | "quarter" | "month" | "week";
 type SeasonalityGrouping = "week" | "month" | "quarter";
 
 /**
+ * Google Sheets Configuration
+ * 
+ * To use Google Sheets integration:
+ * 1. Deploy your Apps Script (sheet-deploy-2026.gs) as a Web App
+ * 2. Copy the deployed Web App URL
+ * 3. Set GOOGLE_SHEETS_API_URL to that URL below
+ * 
+ * Example: const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+ */
+const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbx02c2-t5HX50f52wPZhGbRP3h9jSykLv9W49N8we1XFihA9oFsusZOzP1bd6lHfJab/exec"; // Set this to your deployed Apps Script URL
+
+// Tab and metric configuration
+// Maps tab names to their metric columns (column letters)
+const TAB_METRICS: Record<string, string[]> = {
+  "HEALTH": ["D", "E", "F", "G", "H", "K", "L", "M", "O"],
+  "AWN": ["D", "E", "G", "I", "J", "K", "P", "R"],
+  "PRODUCTIVITY": ["D", "F", "H", "K", "N", "O", "P"],
+  "Oura_Sleep": ["O"],
+  "Oura_Readiness": ["K"],
+};
+
+// Column letter to index mapping (A=0, B=1, etc.)
+function columnLetterToIndex(letter: string): number {
+  return letter.toUpperCase().charCodeAt(0) - 65;
+}
+
+// Get column name from header row and column index
+function getColumnName(headers: string[], columnIndex: number): string | null {
+  return headers[columnIndex] || null;
+}
+
+/**
  * Global constants and variables
  */
 const MAX_LINK_LENGTH = 2000; // 2000 characters in url: https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
@@ -162,7 +194,14 @@ const DUMMY_DATA: DataValue[] = INITIAL_VALUES.map(function (el, i) {
 });
 
 
-// This is the state of the app.
+// Multi-metric state: stores data for all tabs and metrics
+const metricsData = new Map<string, Map<string, DataValue[]>>(); // tabName -> (metricName -> DataValue[])
+
+// Current selection
+let currentTab: string = "";
+let currentMetric: string = "";
+
+// This is the state of the app (for the currently selected metric).
 const state = {
   // tableData, xLabel and yLabel is set by the handsontable (the table rendered onscreen).
   // for handsontable to be reactive, use hot.updateSettings({ ... }). Don't just use assignment.
@@ -1823,6 +1862,7 @@ function initialiseHandsOnTable() {
       state.xLabel ?? "Date",
       state.yLabel === "Value" ? "Value (✏️)" : state.yLabel,
     ],
+    readOnly: !!GOOGLE_SHEETS_API_URL, // Make read-only when using Google Sheets
     // Editable column header: https://github.com/handsontable/handsontable/issues/1980
     afterOnCellMouseDown: function (e, coords) {
       if (coords.row !== -1) {
@@ -1992,11 +2032,121 @@ document.addEventListener("DOMContentLoaded", async function (_e) {
       lockLimitButton.disabled = true;
     }
   } else {
-    state.tableData = DUMMY_DATA;
+    // Try to load from Google Sheets if configured
+    if (GOOGLE_SHEETS_API_URL) {
+      // Initialize tab selector
+      const tabSelector = document.getElementById("tab-selector") as HTMLSelectElement;
+      const metricSelector = document.getElementById("metric-selector") as HTMLSelectElement;
+      
+      // Populate tab selector
+      const availableTabs = Object.keys(TAB_METRICS);
+      tabSelector.innerHTML = '<option value="">Select a tab...</option>';
+      availableTabs.forEach(tab => {
+        const option = document.createElement("option");
+        option.value = tab;
+        option.textContent = tab;
+        tabSelector.appendChild(option);
+      });
+      
+      // Tab selection handler
+      tabSelector.addEventListener("change", async (e) => {
+        const selectedTab = (e.target as HTMLSelectElement).value;
+        if (!selectedTab) {
+          metricSelector.innerHTML = '<option value="">Select a tab first</option>';
+          metricSelector.disabled = true;
+          currentTab = "";
+          currentMetric = "";
+          return;
+        }
+        
+        try {
+          metricSelector.disabled = true;
+          metricSelector.innerHTML = '<option value="">Loading...</option>';
+          currentTab = selectedTab;
+          currentMetric = "";
+          
+          await loadTabData(selectedTab);
+          const tabMetrics = metricsData.get(selectedTab);
+          
+          if (!tabMetrics || tabMetrics.size === 0) {
+            metricSelector.innerHTML = '<option value="">No metrics found</option>';
+            return;
+          }
+          
+          // Populate metric selector
+          metricSelector.innerHTML = '<option value="">Select a metric...</option>';
+          tabMetrics.forEach((_, metricName) => {
+            const option = document.createElement("option");
+            option.value = metricName;
+            option.textContent = metricName;
+            metricSelector.appendChild(option);
+          });
+          metricSelector.disabled = false;
+        } catch (error) {
+          console.error("Error loading tab:", error);
+          metricSelector.innerHTML = '<option value="">Error loading tab</option>';
+          alert(`Error loading tab: ${error.message}`);
+          currentTab = "";
+        }
+      });
+      
+      // Metric selection handler
+      metricSelector.addEventListener("change", (e) => {
+        const selectedMetric = (e.target as HTMLSelectElement).value;
+        if (!selectedMetric || !currentTab) {
+          return;
+        }
+        switchToMetric(currentTab, selectedMetric);
+      });
+      
+      // Refresh data button
+      const refreshDataButton = document.getElementById("refresh-data") as HTMLButtonElement;
+      refreshDataButton?.addEventListener("click", async () => {
+        if (!currentTab) {
+          alert("Please select a tab first");
+          return;
+        }
+        try {
+          refreshDataButton.disabled = true;
+          refreshDataButton.textContent = "Loading...";
+          await loadTabData(currentTab);
+          
+          // Update metric selector
+          const tabMetrics = metricsData.get(currentTab);
+          if (tabMetrics && currentMetric && tabMetrics.has(currentMetric)) {
+            switchToMetric(currentTab, currentMetric);
+          } else {
+            // Reload metric selector options
+            const metricSelector = document.getElementById("metric-selector") as HTMLSelectElement;
+            metricSelector.innerHTML = '<option value="">Select a metric...</option>';
+            tabMetrics.forEach((_, metricName) => {
+              const option = document.createElement("option");
+              option.value = metricName;
+              option.textContent = metricName;
+              if (metricName === currentMetric) {
+                option.selected = true;
+              }
+              metricSelector.appendChild(option);
+            });
+          }
+        } catch (error) {
+          console.error("Error refreshing data:", error);
+          alert(`Error refreshing data: ${error.message}`);
+        } finally {
+          refreshDataButton.disabled = false;
+          refreshDataButton.textContent = "Refresh Data";
+        }
+      });
+    } else {
+      // Fallback to dummy data if Google Sheets not configured
+      state.tableData = DUMMY_DATA;
+    }
   }
 
   // initialise locked limit base data with default data
-  state.lockedLimitBaseData = deepClone(state.tableData);
+  if (state.tableData.length > 0) {
+    state.lockedLimitBaseData = deepClone(state.tableData);
+  }
 
   // initialise seasonal factor data with default data
   state.seasonalFactorData = deepClone(state.tableData);
@@ -3043,7 +3193,9 @@ function resetLockedLimitDialogTable() {
 
 function resetTrendDialogTable() {
   state.trendData = deepClone(state.tableData);
-  trendHot.updateData(state.trendData);
+  if (trendHot) {
+    trendHot.updateData(state.trendData);
+  }
   state.trendLines = createTrendlines(state.regressionStats, state.trendData);
 }
 
@@ -3599,4 +3751,226 @@ function debug(v: any, msg?: string) {
   }
   console.debug(v);
   return v;
+}
+
+/**
+ * Google Sheets Integration Functions
+ */
+
+interface SheetsResponse {
+  tab: string;
+  data: Array<Record<string, any>>;
+  error?: string;
+  message?: string;
+}
+
+/**
+ * Fetches data from Google Sheets API
+ */
+async function fetchSheetData(tabName: string): Promise<SheetsResponse> {
+  if (!GOOGLE_SHEETS_API_URL) {
+    throw new Error("Google Sheets API URL not configured. Please set GOOGLE_SHEETS_API_URL.");
+  }
+  
+  const url = `${GOOGLE_SHEETS_API_URL}?tab=${encodeURIComponent(tabName)}`;
+  const response = await fetch(url);
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch data: ${response.statusText}`);
+  }
+  
+  const json: SheetsResponse = await response.json();
+  
+  if (json.error) {
+    throw new Error(json.message || json.error);
+  }
+  
+  return json;
+}
+
+/**
+ * Transforms Google Sheets data into XMRIT DataValue format for a specific metric
+ */
+function transformSheetsDataToMetric(
+  sheetsData: Array<Record<string, any>>,
+  dateColumnName: string,
+  metricColumnName: string
+): DataValue[] {
+  const dataValues: DataValue[] = [];
+  
+  sheetsData.forEach((row, index) => {
+    const dateValue = row[dateColumnName];
+    const metricValue = row[metricColumnName];
+    
+    // Skip rows with missing date or metric value
+    if (!dateValue || metricValue === null || metricValue === undefined || metricValue === "") {
+      return;
+    }
+    
+    // Convert date to YYYY-MM-DD format
+    let dateStr: string;
+    if (dateValue instanceof Date) {
+      dateStr = toDateStr(dateValue);
+    } else if (typeof dateValue === "string") {
+      // Try to parse the date string
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) {
+        // If parsing fails, try to use as-is if it's already in YYYY-MM-DD format
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+          dateStr = dateValue;
+        } else {
+          console.warn(`Invalid date format: ${dateValue}`);
+          return;
+        }
+      } else {
+        dateStr = toDateStr(date);
+      }
+    } else {
+      console.warn(`Unexpected date type: ${typeof dateValue}`);
+      return;
+    }
+    
+    // Convert metric value to number
+    const numericValue = typeof metricValue === "number" 
+      ? metricValue 
+      : parseFloat(String(metricValue));
+    
+    if (isNaN(numericValue)) {
+      console.warn(`Invalid numeric value for ${metricColumnName}: ${metricValue}`);
+      return;
+    }
+    
+    dataValues.push({
+      order: index,
+      x: dateStr,
+      value: numericValue,
+      status: DataStatus.NORMAL,
+    });
+  });
+  
+  // Sort by date
+  sortDataValues(dataValues);
+  
+  // Reassign order after sorting
+  dataValues.forEach((dv, idx) => {
+    dv.order = idx;
+  });
+  
+  return dataValues;
+}
+
+/**
+ * Extracts all metrics from a tab's data
+ * Returns a map of metric name -> DataValue[]
+ */
+function extractMetricsFromTab(
+  sheetsData: Array<Record<string, any>>,
+  tabName: string
+): Map<string, DataValue[]> {
+  const metrics = new Map<string, DataValue[]>();
+  
+  if (!sheetsData || sheetsData.length === 0) {
+    return metrics;
+  }
+  
+  // Get headers (first row keys)
+  const headers = Object.keys(sheetsData[0]);
+  const dateColumnName = "Date"; // Always the third column, named "Date"
+  
+  // Get metric columns for this tab
+  const metricColumns = TAB_METRICS[tabName] || [];
+  
+  metricColumns.forEach((columnLetter) => {
+    const columnIndex = columnLetterToIndex(columnLetter);
+    const metricColumnName = getColumnName(headers, columnIndex);
+    
+    if (!metricColumnName) {
+      console.warn(`Column ${columnLetter} not found in tab ${tabName}`);
+      return;
+    }
+    
+    const dataValues = transformSheetsDataToMetric(
+      sheetsData,
+      dateColumnName,
+      metricColumnName
+    );
+    
+    if (dataValues.length > 0) {
+      metrics.set(metricColumnName, dataValues);
+    }
+  });
+  
+  return metrics;
+}
+
+/**
+ * Loads data from Google Sheets for a specific tab
+ */
+async function loadTabData(tabName: string): Promise<void> {
+  try {
+    const response = await fetchSheetData(tabName);
+    const metrics = extractMetricsFromTab(response.data, tabName);
+    metricsData.set(tabName, metrics);
+  } catch (error) {
+    console.error(`Error loading tab ${tabName}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Switches to a different metric and updates the state
+ */
+function switchToMetric(tabName: string, metricName: string): void {
+  const tabMetrics = metricsData.get(tabName);
+  if (!tabMetrics) {
+    console.error(`Tab ${tabName} not loaded`);
+    return;
+  }
+  
+  const metricData = tabMetrics.get(metricName);
+  if (!metricData) {
+    console.error(`Metric ${metricName} not found in tab ${tabName}`);
+    return;
+  }
+  
+  currentTab = tabName;
+  currentMetric = metricName;
+  
+  // Update state with the selected metric's data
+  state.tableData = deepClone(metricData);
+  state.yLabel = metricName;
+  state.xLabel = "Date";
+  
+  // Reset other state
+  state.dividerLines = [];
+  state.lockedLimits = structuredClone(INACTIVE_LOCKED_LIMITS);
+  state.lockedLimitStatus = LockedLimitStatus.UNLOCKED;
+  state.isShowingDeseasonalisedData = false;
+  state.isShowingTrendLines = false;
+  state.lockedLimitBaseData = deepClone(metricData);
+  state.seasonalFactorData = deepClone(metricData);
+  state.trendData = deepClone(metricData);
+  
+  // Update other Handsontable instances if they exist
+  if (lockedLimitHot) {
+    lockedLimitHot.updateSettings({ data: state.lockedLimitBaseData });
+  }
+  if (deseasonaliseHot) {
+    deseasonaliseHot.updateSettings({ data: state.seasonalFactorData });
+  }
+  if (trendHot) {
+    trendHot.updateSettings({ data: state.trendData });
+  }
+  
+  // Update Handsontable if it exists
+  if (hot) {
+    hot.updateSettings({
+      data: state.tableData,
+      colHeaders: [state.xLabel, state.yLabel],
+      readOnly: !!GOOGLE_SHEETS_API_URL, // Make read-only when using Google Sheets
+    });
+  }
+  
+  // Re-render charts
+  renderCharts("switchMetric");
 }
